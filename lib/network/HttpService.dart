@@ -1,8 +1,9 @@
 import 'dart:convert';
+
 import 'package:http/http.dart';
 import 'package:nasa_news/model/Article.dart';
 
-import 'model/ImageGallery.dart';
+import '../model/ImageGallery.dart';
 
 
 class HttpService {

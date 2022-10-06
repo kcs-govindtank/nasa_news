@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nasa_news/TextStyles.dart';
+import 'package:nasa_news/constants/TextStyles.dart';
 
+import '../model/Article.dart';
+import '../network/HttpService.dart';
 import 'DetailScreen.dart';
-import 'HttpService.dart';
-import 'model/Article.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({required this.title});
