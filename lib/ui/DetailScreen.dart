@@ -193,10 +193,7 @@ class DetailScreenState extends State<DetailScreen> {
           List<String> images = galleryData
               .where((i) => i.endsWith(".jpg") && i.contains(filter))
               .toList();
-          return
-            // GestureDetector(
-            // child:
-              Card(
+          return Card(
               borderOnForeground: false,
               elevation: 0,
               child: Container(
@@ -230,8 +227,6 @@ class DetailScreenState extends State<DetailScreen> {
                     }),
               ),
             );
-          //   onTap: () {},
-          // );
         } else {
           return Container(
             alignment: Alignment.center,
