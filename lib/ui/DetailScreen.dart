@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:nasa_news/FilterItem.dart';
-import 'package:nasa_news/TextStyles.dart';
+import 'package:nasa_news/constants/TextStyles.dart';
 import 'package:nasa_news/model/Article.dart';
+import 'package:nasa_news/model/FilterItem.dart';
 
-import 'HttpService.dart';
+import '../network/HttpService.dart';
 import 'PhotoDisplayScreen.dart';
 
 class DetailScreen extends StatefulWidget {
@@ -193,10 +193,7 @@ class DetailScreenState extends State<DetailScreen> {
           List<String> images = galleryData
               .where((i) => i.endsWith(".jpg") && i.contains(filter))
               .toList();
-          return
-            // GestureDetector(
-            // child:
-              Card(
+          return Card(
               borderOnForeground: false,
               elevation: 0,
               child: Container(
@@ -215,7 +212,7 @@ class DetailScreenState extends State<DetailScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PhotoDisplayScreen(),
+                              builder: (context) => const PhotoDisplayScreen(),
                             settings: RouteSettings(arguments: ImageDataArguments(imageTitle,images[index]))),
                           );
                         },
@@ -230,8 +227,6 @@ class DetailScreenState extends State<DetailScreen> {
                     }),
               ),
             );
-          //   onTap: () {},
-          // );
         } else {
           return Container(
             alignment: Alignment.center,

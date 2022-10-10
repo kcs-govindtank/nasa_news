@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nasa_news/DetailScreen.dart';
+import 'package:nasa_news/ui/DetailScreen.dart';
 
 class PhotoDisplayScreen extends StatefulWidget {
   const PhotoDisplayScreen({Key? key, }) : super(key: key);
