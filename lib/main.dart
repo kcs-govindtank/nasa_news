@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         home: const HomePage(),
         builder: (buildContext, widget) {
           return ConnectivityWidgetWrapper(
-            disableInteraction: true,
+            disableInteraction: false,
             height: 80,
             child: widget ?? Container(),
           );

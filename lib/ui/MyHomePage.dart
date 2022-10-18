@@ -22,6 +22,7 @@ class _HomePageState extends State<HomePage> {
 
   // There is next page or not
   bool _hasNextPage = true;
+  bool _atTheEndOfPage = false;
 
   bool _isError = false;
 
@@ -140,163 +141,176 @@ class _HomePageState extends State<HomePage> {
                       shrinkWrap: true,
                       controller: _controller,
                       itemCount: _posts.length,
-                      itemBuilder: (_, index) => Card(
-                        elevation: 4,
-                        child: ListBody(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const DetailScreen(),
-                                      settings:
-                                          RouteSettings(arguments: _posts[index])),
-                                );
-                              },
-                              child: Table(
-                                columnWidths: const {1: FlexColumnWidth(1.8)},
-                                children: [
-                                  TableRow(children: [
-                                    InkWell(
-                                      child: SizedBox(
-                                          width: 50.0,
-                                          height: 100.0,
-                                          child: Image.network(
-                                            _posts[index].links != null &&
-                                                    _posts[index].links.isNotEmpty
-                                                ? _posts[index]
-                                                    .links
+                      itemBuilder: (BuildContext context, int index) {
+                        if(index==_posts.length-1) {
+                          _atTheEndOfPage=true;
+                        } else {
+                          _atTheEndOfPage=false;
+                        }
+                        return Card(
+                          elevation: 4,
+                          child: ListBody(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (
+                                            context) => const DetailScreen(),
+                                        settings:
+                                        RouteSettings(
+                                            arguments: _posts[index])),
+                                  );
+                                },
+                                child: Table(
+                                  columnWidths: const {1: FlexColumnWidth(1.8)},
+                                  children: [
+                                    TableRow(children: [
+                                      InkWell(
+                                        child: SizedBox(
+                                            width: 50.0,
+                                            height: 100.0,
+                                            child: Image.network(
+                                              _posts[index].links != null &&
+                                                  _posts[index].links.isNotEmpty
+                                                  ? _posts[index]
+                                                  .links
+                                                  .first
+                                                  .href
+                                                  .toString()
+                                                  : "",
+                                              fit: BoxFit.cover,
+                                              alignment: Alignment.center,
+                                              errorBuilder: (
+                                                  BuildContext context,
+                                                  Object exception,
+                                                  StackTrace? stackTrace) {
+                                                print(
+                                                    "Exception >> ${exception
+                                                        .toString()}");
+                                                return Image.asset(
+                                                    'lib/assets/images/product.jpg');
+                                              },
+                                            )),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.topLeft,
+                                        padding: const EdgeInsets.all(6),
+                                        width: 50.0,
+                                        height: 100.0,
+                                        child: Column(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                            children: [
+                                              Text(
+                                                _posts[index].data != null &&
+                                                    _posts[index].data.length >
+                                                        0
+                                                    ? _posts[index]
+                                                    .data
                                                     .first
-                                                    .href
+                                                    .title
                                                     .toString()
-                                                : "",
-                                            fit: BoxFit.cover,
-                                            alignment: Alignment.center,
-                                            errorBuilder: (BuildContext context,
-                                                Object exception,
-                                                StackTrace? stackTrace) {
-                                              print(
-                                                  "Exception >> ${exception.toString()}");
-                                              return Image.asset(
-                                                  'lib/assets/images/product.jpg');
-                                            },
-                                          )),
-                                    ),
-                                    Container(
-                                      alignment: Alignment.topLeft,
-                                      padding: const EdgeInsets.all(6),
-                                      width: 50.0,
-                                      height: 100.0,
-                                      child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: [
-                                            Text(
-                                              _posts[index].data != null &&
-                                                      _posts[index].data.length > 0
-                                                  ? _posts[index]
-                                                      .data
-                                                      .first
-                                                      .title
-                                                      .toString()
-                                                  : "",
-                                              maxLines: 2,
-                                              style:
-                                                  TextStyles.homeTitleText(context),
-                                            ),
-                                            Text(
-                                              _posts[index].data != null &&
-                                                      _posts[index].data.isNotEmpty
-                                                  ? _posts[index]
-                                                      .data
-                                                      .first
-                                                      .description
-                                                      .toString()
-                                                  : "",
-                                              maxLines: 3,
-                                              style: TextStyles.homeDescriptionText(
-                                                  context),
-                                            ),
-                                          ]),
-                                    ),
-                                  ]),
-                                ],
+                                                    : "",
+                                                maxLines: 2,
+                                                style:
+                                                TextStyles.homeTitleText(
+                                                    context),
+                                              ),
+                                              Text(
+                                                _posts[index].data != null &&
+                                                    _posts[index].data
+                                                        .isNotEmpty
+                                                    ? _posts[index]
+                                                    .data
+                                                    .first
+                                                    .description
+                                                    .toString()
+                                                    : "",
+                                                maxLines: 3,
+                                                style: TextStyles
+                                                    .homeDescriptionText(
+                                                    context),
+                                              ),
+                                            ]),
+                                      ),
+                                    ]),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // when the _loadMore function is running
-                  if (_isLoadMoreRunning == true)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: const CircularProgressIndicator(),
-                      ),
-                    ),
+                              // when the _loadMore function is running
+                              if (_isLoadMoreRunning == true && _atTheEndOfPage)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 4),
+                                    alignment: Alignment.center,
+                                    child: const CircularProgressIndicator(),
+                                  ),
 
-                  // When nothing else to load
-                  if (_hasNextPage == false)
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      color: Colors.white,
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Text('End of Page'),
-                      ),
-                    ),
-                  // When there is an error
-                  if (_isError == true)
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      color: Colors.white,
-                      alignment: Alignment.center,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Something went wrong, Please ',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black),
+                              // When nothing else to load
+                              if (_hasNextPage == false && _atTheEndOfPage)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  color: Colors.white,
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Text('End of Page'),
+                                  ),
+                                ),
+                              // When there is an error
+                              if (_isError == true && _atTheEndOfPage)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  color: Colors.white,
+                                  alignment: Alignment.center,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        'Something went wrong, Please ',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.black),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            // _isLoadMoreRunning = true;
+                                            _isError = false;
+                                            _loadMore();
+                                          });
+                                        },
+                                        child: const Text.rich(
+                                          TextSpan(
+                                            children: [
+                                              TextSpan(text: 'Retry '),
+                                              WidgetSpan(
+                                                  child: Icon(
+                                                    Icons.refresh,
+                                                    size: 16,
+                                                    color: Colors.green,
+                                                  )),
+                                            ],
+                                          ),
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.green),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                            ],
                           ),
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                // _isLoadMoreRunning = true;
-                                _isError = false;
-                                _loadMore();
-                              });
-                            },
-                            child: const Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(text: 'Retry '),
-                                  WidgetSpan(
-                                      child: Icon(
-                                    Icons.refresh,
-                                    size: 16,
-                                    color: Colors.green,
-                                  )),
-                                ],
-                              ),
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                        );
+                      }),
+                  ),
+
                 ]),
 
       ),
