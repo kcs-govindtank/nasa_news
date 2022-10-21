@@ -1,3 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
@@ -5,6 +8,7 @@ import 'package:nasa_news/constants/TextStyles.dart';
 import 'package:nasa_news/model/Article.dart';
 import 'package:nasa_news/model/FilterItem.dart';
 
+import '../constants/common.dart';
 import '../network/HttpService.dart';
 import 'PhotoDisplayScreen.dart';
 
@@ -16,6 +20,7 @@ class DetailScreen extends StatefulWidget {
 }
 
 class DetailScreenState extends State<DetailScreen> {
+  Dio dio = Dio();
   var filterItems = [
     const FilterItem(
         'Thumb',
@@ -51,9 +56,15 @@ class DetailScreenState extends State<DetailScreen> {
       ));
   int itemCount = 4;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
+
   @override
   Widget build(BuildContext context) {
     final data = ModalRoute.of(context)!.settings.arguments as Item;
+    dio.interceptors.add(DioCacheManager(CacheConfig(baseUrl: data.href)).interceptor);
 
     return Scaffold(
       appBar: AppBar(
@@ -69,18 +80,18 @@ class DetailScreenState extends State<DetailScreen> {
             children: [
               SizedBox(
                   height: 180.0,
-                  child: Image.network(
-                    data.links != null && data.links.isNotEmpty
-                        ? data.links.first.href.toString()
-                        : "",
-                    fit: BoxFit.cover,
-                    alignment: Alignment.center,
-                    errorBuilder: (BuildContext context, Object exception,
-                        StackTrace? stackTrace) {
-                      print("Exception >> ${exception.toString()}");
-                      return Image.asset('lib/assets/images/product.jpg');
-                    },
-                  )),
+                  child:
+                  CachedNetworkImage(
+                      imageUrl: data.links != null && data.links.isNotEmpty
+                          ? data.links.first.href.toString()
+                          : "",
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>  CM.loading(),
+                      errorWidget: (context, url, error) =>
+                      Image.asset(
+                          'lib/assets/images/product.jpg', fit: BoxFit.cover,)
+                  ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                 child: Column(
@@ -185,15 +196,22 @@ class DetailScreenState extends State<DetailScreen> {
   FutureBuilder<List<String>> _loadImages(
       BuildContext context, String url, String filter, int itemCount, String imageTitle) {
     final HttpService httpService = HttpService();
+
+    try{
+
+    }catch(e){
+
+    }
     return FutureBuilder<List<String>>(
-      future: httpService.getImageGallery(url),
+      future: httpService.getImageGallery(dio,url),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          final List<String> galleryData = snapshot.requireData;
-          List<String> images = galleryData
-              .where((i) => i.endsWith(".jpg") && i.contains(filter))
-              .toList();
-          return Card(
+          if(snapshot.requireData.isNotEmpty){
+            final List<String> galleryData = snapshot.requireData;
+            List<String> images = galleryData
+                .where((i) => i.endsWith(".jpg") && i.contains(filter))
+                .toList();
+            return Card(
               borderOnForeground: false,
               elevation: 0,
               child: Container(
@@ -212,26 +230,34 @@ class DetailScreenState extends State<DetailScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const PhotoDisplayScreen(),
-                            settings: RouteSettings(arguments: ImageDataArguments(imageTitle,images[index]))),
+                                builder: (context) => const PhotoDisplayScreen(),
+                                settings: RouteSettings(arguments: ImageDataArguments(imageTitle,images[index]))),
                           );
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(2.0),
-                          child: Image.network(
+                          child: CachedNetworkImage(
+                            imageUrl: images[index],
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>  CM.loading(),
+                            errorWidget: (context, url, error) => Icon(Icons.error),
+                          )
+                          /*Image.network(
                             fit: BoxFit.cover,
                             images[index],
-                          ),
+                          )*/,
                         ),
                       );
                     }),
               ),
             );
+          }else{
+            return Container(alignment: Alignment.center,
+                child: Icon(Icons.no_photography_outlined));
+          }
         } else {
-          return Container(
-            alignment: Alignment.center,
-            child: const CircularProgressIndicator(),
-          );
+          return Container(alignment: Alignment.center,
+              child: Icon(Icons.error_outline));
         }
       },
     );

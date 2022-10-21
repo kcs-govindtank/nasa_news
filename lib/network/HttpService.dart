@@ -1,35 +1,23 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
-import 'package:nasa_news/model/Article.dart';
+import 'package:dio/dio.dart';
 
+import '../constants/common.dart';
 import '../model/ImageGallery.dart';
 
-
 class HttpService {
-
-  Future<Collection> getData(String linkURL) async {
-
-    var rest;
-    var url = Uri.parse(linkURL);
-    var res = await get(url);
-    print("url : $url");
-    if (res.statusCode == 200) {
-      rest=Article.fromJson(jsonDecode(res.body)).collection;
-
-      print('result first title : ${(rest as Collection).items.first.data.first.title}');
-    }
-    return rest;
-  }
-
-  Future<List<String>> getImageGallery(String url) async {
+  Future<List<String>> getImageGallery(Dio dio, String url) async {
     List<String> rest=[];
-    var res = await get(Uri.parse(url));
-
-    if (res.statusCode == 200) {
-      rest = imageGalleryFromJson(res.body);
+    try{
+      var URL=Uri.parse(url);
+      print(URL);
+      var res = await dio.getUri(URL,options: CM.cacheOptions());
+      if (res.statusCode == 200) {
+        rest = imageGalleryFromJson(jsonEncode(res.data));
+      }
+    }catch(e){
+      print(e);
     }
     return rest;
   }
-
 }

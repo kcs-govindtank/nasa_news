@@ -2,7 +2,6 @@
 //
 //     final imageGallery = imageGalleryFromJson(jsonString);
 
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 List<String> imageGalleryFromJson(String str) => List<String>.from(json.decode(str).map((x) => x));

@@ -1,12 +1,13 @@
-import 'dart:convert';
-
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:nasa_news/model/Article.dart';
 import 'package:nasa_news/ui/DetailScreen.dart';
 
 import '../constants/TextStyles.dart';
+import '../constants/common.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Dio dio = Dio();
   // We will fetch data from this Rest api
   final String _baseUrl = "http://images-api.nasa.gov/search?q=moon&page=1";
   String nextPageURL = "";
@@ -43,9 +45,9 @@ class _HomePageState extends State<HomePage> {
       _isFirstLoadRunning = true;
     });
     try {
-      final res = await get(Uri.parse(_baseUrl));
+      var res = await dio.get(_baseUrl,options: CM.cacheOptions());
       setState(() {
-        collection = Article.fromJson(jsonDecode(res.body)).collection;
+        collection = Article.fromJson(res.data).collection;
         setNextPageURL(collection?.links ?? []);
         _posts = collection?.items ?? [];
       });
@@ -75,8 +77,9 @@ class _HomePageState extends State<HomePage> {
       });
 
       try {
-        final res = await get(Uri.parse(nextPageURL));
-        collection = Article.fromJson(jsonDecode(res.body)).collection;
+        // final res = await get(Uri.parse(nextPageURL));
+        var res = await dio.get(nextPageURL,options: CM.cacheOptions());
+        collection = Article.fromJson(res.data).collection;
         List<Item> fetchedPosts = collection?.items ?? [];
         setNextPageURL(collection?.links ?? []);
         if (fetchedPosts.isNotEmpty) {
@@ -112,6 +115,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    dio.interceptors.add(DioCacheManager(CacheConfig(baseUrl: _baseUrl)).interceptor);
+
     _firstLoad();
     _controller = ScrollController()..addListener(_loadMore);
   }
@@ -129,7 +134,9 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: const Text('Flutter Demo'),
         ),
-        body: _isFirstLoadRunning
+        body: _isError?Container(alignment: Alignment.center,
+            child: Text("Error while fetching data. \n Please Check your internet.",
+            textAlign: TextAlign.center, style: TextStyle(fontSize: 18),)):_isFirstLoadRunning
             ? Container(
                 alignment: Alignment.center,
                 child: const CircularProgressIndicator(),
@@ -156,11 +163,8 @@ class _HomePageState extends State<HomePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (
-                                            context) => const DetailScreen(),
-                                        settings:
-                                        RouteSettings(
-                                            arguments: _posts[index])),
+                                        builder: (context) => const DetailScreen(),
+                                        settings: RouteSettings(arguments: _posts[index])),
                                   );
                                 },
                                 child: Table(
@@ -171,9 +175,9 @@ class _HomePageState extends State<HomePage> {
                                         child: SizedBox(
                                             width: 50.0,
                                             height: 100.0,
-                                            child: Image.network(
-                                              _posts[index].links != null &&
-                                                  _posts[index].links.isNotEmpty
+                                            child:
+                                            CachedNetworkImage(
+                                              imageUrl: _posts[index].links.isNotEmpty
                                                   ? _posts[index]
                                                   .links
                                                   .first
@@ -181,22 +185,17 @@ class _HomePageState extends State<HomePage> {
                                                   .toString()
                                                   : "",
                                               fit: BoxFit.cover,
-                                              alignment: Alignment.center,
-                                              errorBuilder: (
-                                                  BuildContext context,
-                                                  Object exception,
-                                                  StackTrace? stackTrace) {
-                                                print(
-                                                    "Exception >> ${exception
-                                                        .toString()}");
-                                                return Image.asset(
-                                                    'lib/assets/images/product.jpg');
-                                              },
-                                            )),
+                                              placeholder: (context, url) => CM.loading(),
+                                              errorWidget: (context, url, error) =>
+                                                  // Icon(Icons.error),
+                                              Image.asset(
+                                                  'lib/assets/images/product.jpg', fit: BoxFit.cover,)
+                                            ),
+                                        ),
                                       ),
                                       Container(
                                         alignment: Alignment.topLeft,
-                                        padding: const EdgeInsets.all(6),
+                                        padding: const EdgeInsets.all(4),
                                         width: 50.0,
                                         height: 100.0,
                                         child: Column(

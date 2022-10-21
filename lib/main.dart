@@ -21,13 +21,13 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: const HomePage(),
-        builder: (buildContext, widget) {
-          return ConnectivityWidgetWrapper(
-            disableInteraction: false,
-            height: 80,
-            child: widget ?? Container(),
-          );
-        },
+        // builder: (buildContext, widget) {
+        //   return ConnectivityWidgetWrapper(
+        //     disableInteraction: false,
+        //     height: 80,
+        //     child: widget ?? Container(),
+        //   );
+        // },
       ),
     );
   }
