@@ -134,9 +134,11 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: const Text('Flutter Demo'),
         ),
-        body: _isError?Container(alignment: Alignment.center,
-            child: Text("Error while fetching data. \n Please Check your internet.",
-            textAlign: TextAlign.center, style: TextStyle(fontSize: 18),)):_isFirstLoadRunning
+        body:
+        // _isError?Container(alignment: Alignment.center,
+        //     child: Text("Error while fetching data. \n Please Check your internet.",
+        //     textAlign: TextAlign.center, style: TextStyle(fontSize: 18),)):
+        _isFirstLoadRunning
             ? Container(
                 alignment: Alignment.center,
                 child: const CircularProgressIndicator(),

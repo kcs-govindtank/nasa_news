@@ -39,14 +39,8 @@ class _PhotoDisplayScreenState extends State<PhotoDisplayScreen> {
               height: 400,
               fit: BoxFit.fitWidth,
               placeholder: (context, url) => CM.loading(),
-              errorWidget: (context, url, error) => Icon(Icons.no_photography_outlined),
+              errorWidget: (context, url, error) => const Icon(Icons.no_photography_outlined),
             )
-            /*Image.network(
-              imageData.imageUrl,
-              width: 400,
-              height: 400,
-              fit: BoxFit.fill,
-            ),*/
           ),
         )
     );

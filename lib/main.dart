@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: const HomePage(),
+        //disabling the connectivity check as to give support for offline cacheing
         // builder: (buildContext, widget) {
         //   return ConnectivityWidgetWrapper(
         //     disableInteraction: false,
